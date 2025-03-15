@@ -6,40 +6,28 @@ import { Resend } from "resend";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Ensure API key is available
-if (!process.env.RESEND_API_KEY) {
-  console.error("Error: Missing RESEND_API_KEY. Check your .env file.");
-  process.exit(1); 
-}
-
-// Initialize Resend with API key from .env
-const resend = new Resend(process.env.RESEND_API_KEY);
+const port = process.env.PORT || 5000;
 
 // Middleware
+app.use(cors({ origin: "https://portfolio-navraj.netlify.app" }));
 app.use(express.json());
-app.use(cors());
 
-// Test route
-app.get("/", (req, res) => {
-  res.send("Email API is running with Resend!");
-});
+// Initialize Resend API
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Contact Form Route
+// Contact form route
 app.post("/send-email", async (req, res) => {
   try {
     console.log("Incoming request body:", req.body);
-    
+
     const { name, email, subject, message } = req.body;
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
-      console.error("Missing required fields");
       return res.status(400).json({ success: false, message: "All fields are required." });
     }
 
-    // Check recipient email
+    // Check recipient email (ensure it's set in Render environment variables)
     if (!process.env.RECEIVER_EMAIL) {
       console.error("Missing RECEIVER_EMAIL in .env");
       return res.status(500).json({ success: false, message: "Server configuration error." });
@@ -69,7 +57,9 @@ app.post("/send-email", async (req, res) => {
     console.error("Error sending email:", error);
     res.status(500).json({ success: false, message: "Failed to send message." });
   }
-
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+// Start server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
