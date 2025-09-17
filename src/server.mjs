@@ -9,18 +9,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
-
-// Ensure API key exists before initializing Resend
-if (!process.env.RESEND_API_KEY) {
-  console.error("Missing RESEND_API_KEY in .env");
-  process.exit(1);
-}
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-app.use("/api/track", trackVisitRoute);
-
-
 // Enhanced CORS configuration
 app.use(cors({
   origin: function (origin, callback) {
@@ -42,11 +30,21 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
-
-// Handle preflight requests
 app.options("*", cors());
 
 app.use(express.json());
+
+
+// Ensure API key exists before initializing Resend
+if (!process.env.RESEND_API_KEY) {
+  console.error("Missing RESEND_API_KEY in .env");
+  process.exit(1);
+}
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+app.use("/api/track", trackVisitRoute);
+
 
 // Contact form route
 app.post("/send-email", async (req, res) => {
