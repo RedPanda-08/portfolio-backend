@@ -77,4 +77,14 @@ router.get('/visit', (req, res) => {
       });
 });
 
+// TEMPORARY: Hit http://portfolio-backend-1-eogw.onrender.com/api/track/reset to force zero
+router.get('/reset', (req, res) => {
+    try {
+        fs.writeFileSync(logFilePath, JSON.stringify({ totalViews: 0 }, null, 2));
+        res.status(200).send("Telemetry log successfully cleared and reset to 0! 🎉");
+    } catch (err) {
+        res.status(500).send("Reset failed: " + err.message);
+    }
+});
+
 export default router;
